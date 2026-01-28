@@ -1,0 +1,23 @@
+kind: Job
+apiVersion: batch/v1
+metadata:
+  name: cpu-{{.JobName}}-{{.Replica}}-{{.Iteration}}
+  labels:
+    group: kueue-cpu-job
+    kueue.x-k8s.io/queue-name: local-queue
+spec:
+  parallelism: 1
+  completions: 1
+  completionMode: Indexed
+  template:
+    spec:
+      containers:
+      - name: sleep
+        image: gcr.io/k8s-staging-perf-tests/sleep:v0.1.0
+        resources:
+          requests:
+            cpu: "10m"
+        args:
+          - "1s"
+        imagePullPolicy: IfNotPresent
+      restartPolicy: Never

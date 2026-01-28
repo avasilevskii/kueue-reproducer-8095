@@ -1,0 +1,25 @@
+kind: Job
+apiVersion: batch/v1
+metadata:
+  name: kueue-gpu-1
+  labels:
+    group: kueue-gpu-job
+    kueue.x-k8s.io/queue-name: local-queue
+spec:
+  parallelism: 1
+  completions: 1
+  completionMode: Indexed
+  template:
+    spec:
+      containers:
+      - name: cuda-vectoradd
+        image: nvcr.io/nvidia/k8s/cuda-sample:vectoradd-cuda12.5.0-ubi8
+        resources:
+          limits:
+            nvidia.com/gpu: 1      
+        command:
+          - sh
+          - -c
+          - "nvidia-smi -L; /cuda-samples/vectorAdd"
+        imagePullPolicy: IfNotPresent
+      restartPolicy: Never

@@ -1,0 +1,46 @@
+---
+global:
+  gc: false
+  gcMetrics: false
+  measurements:
+   - name: jobLatency
+metricsEndpoints:
+  - metrics: [{{.METRICS}}]
+    indexer:
+      type: local
+      metricsDirectory: collected-metrics
+  
+jobs:
+  - name: prereqs
+    namespace: kueue-scale
+    jobIterations: 1
+    preLoadImages: true
+    namespacedIterations: false
+    skipIndexing: true
+    qps: 5
+    burst: 5
+    namespaceLabels:
+      kueue.openshift.io/managed: "true"
+    objects:
+      - objectTemplate: resource-flavor-cpu.yml
+        replicas: 1
+      - objectTemplate: resource-flavor-gpu.yml
+        replicas: 1
+      - objectTemplate: cluster-queue.yml
+        replicas: 1
+      - objectTemplate: local-queue.yml
+        replicas: 1
+  - name: kueue-scale-jobs
+    namespace: kueue-scale
+    jobIterations: 100
+    preLoadImages: true
+    preLoadPeriod: 5s
+    namespacedIterations: false
+    cleanup: true
+    qps: 25
+    burst: 25
+    objects:
+      - objectTemplate: job-cpu.yml
+        replicas: 10
+      - objectTemplate: job-gpu.yml
+        replicas: 1
