@@ -1,10 +1,39 @@
 # Jobs
-
-- query: count(kube_job_info{namespace=~"kueue-scale-.+"})
+- query: count(kube_job_info{namespace=~"kueue-scale"})
   metricName: totalJobs
 
-- query: sum(kube_pod_status_phase{namespace=~"kueue-scale-.+"}) by (phase)
+- query: sum(kube_pod_status_phase{namespace=~"kueue-scale"}) by (phase)
   metricName: podStatusCount
+
+# Kube API Server
+- query: avg_over_time(histogram_quantile(0.99, sum(rate(apiserver_request_duration_seconds_bucket{apiserver="kube-apiserver", verb=~"POST|PUT|PATCH|UPDATE|DELETE", subresource!="log"}[2m])) by (verb,le)>0)[{{.elapsed}}:])
+  metricName: API99thLatencyWrite
+  instant: true
+
+- query: avg_over_time(histogram_quantile(0.99, sum(rate(apiserver_request_duration_seconds_bucket{apiserver="kube-apiserver", verb=~"LIST|GET", subresource!="log"}[2m])) by (verb,le)>0)[{{.elapsed}}:])
+  metricName: API99thLatencyRead
+  instant: true
+
+- query: avg_over_time((sum(irate(apiserver_request_total{apiserver="kube-apiserver",verb=~"POST|PUT|PATCH|UPDATE|DELETE",subresource!="log"}[2m])) by (verb,code) > 0)[{{.elapsed}}:])
+  metricName: APIRequestRateWrite
+  instant: true
+
+- query: avg_over_time((sum(irate(apiserver_request_total{apiserver="kube-apiserver",verb=~"LIST|GET",subresource!="log"}[2m])) by (verb,code) > 0)[{{.elapsed}}:])
+  metricName: APIRequestRateRead
+  instant: true
+
+- query: avg_over_time(sum(apiserver_current_inflight_requests{}) by (request_kind)[{{.elapsed}}:])
+  metricName: APIInflightRequests
+  instant: true
+
+# etcd
+- query: avg_over_time(histogram_quantile(0.99, sum(rate(etcd_request_duration_seconds_bucket[2m])) by (operation,code,le))[{{.elapsed}}:])
+  metricName: etcd99thLatency
+  instant: true
+
+- query: avg_over_time(sum(irate(etcd_requests_total[2m])) by (operation,code)[{{.elapsed}}:])
+  metricName: etcdRequestRate
+  instant: true
 
 # Pod CPU & memory
 
@@ -26,6 +55,7 @@
 
 - query: max(max_over_time(sum(container_memory_working_set_bytes{pod=~"kueue-controller-manager-.*", name="", namespace=~"openshift-kueue-operator|kueue-system"})[{{.elapsed}}:]))
   metricName: max-memory-kueue-aggregated
+  instant: true
 
 - query: max(max_over_time(sum(container_memory_rss{name!="", namespace="openshift-etcd"})[{{.elapsed}}:]))
   metricName: max-memory-etcd-aggregated
@@ -34,7 +64,14 @@
 # Kueue
 
 - query: histogram_quantile(0.99, rate(kueue_admission_wait_time_seconds_bucket[2m]))
-  metricName: P99KueueAdmissionWaitTime
+  metricName: kueueP99thAdmissionWaitTime
+
+- query: sum(irate(kueue_admission_attempts_total[2m]))
+  metricName: kueueAdmissionAttemptsRate
+
+- query: sum(kueue_pending_workloads) by (status)
+  metricName: kueuePendingWorkloads
 
 - query: kueue_build_info
   metricName: KueueBuildInfo
+  instant: true

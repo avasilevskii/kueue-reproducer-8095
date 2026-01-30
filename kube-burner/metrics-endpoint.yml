@@ -1,0 +1,6 @@
+- endpoint: {{.THANOS_HOST}}
+  token: {{.TOKEN}}
+  metrics: [kueue-metrics.yml]
+  indexer:
+    type: local
+    metricsDirectory: collected-metrics

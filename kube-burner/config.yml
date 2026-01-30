@@ -4,11 +4,6 @@ global:
   gcMetrics: false
   measurements:
    - name: jobLatency
-metricsEndpoints:
-  - metrics: [{{.METRICS}}]
-    indexer:
-      type: local
-      metricsDirectory: collected-metrics
   
 jobs:
   - name: prereqs
