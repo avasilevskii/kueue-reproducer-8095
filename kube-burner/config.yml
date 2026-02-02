@@ -27,7 +27,7 @@ jobs:
         replicas: 1
   - name: kueue-scale-jobs
     namespace: kueue-scale
-    jobIterations: 100
+    jobIterations: 200
     preLoadImages: true
     preLoadPeriod: 5s
     namespacedIterations: false
@@ -36,6 +36,6 @@ jobs:
     burst: 25
     objects:
       - objectTemplate: job-cpu.yml
-        replicas: 10
+        replicas: 5
       - objectTemplate: job-gpu.yml
         replicas: 1
