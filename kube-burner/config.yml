@@ -27,7 +27,7 @@ jobs:
         replicas: 1
   - name: kueue-scale-jobs
     namespace: kueue-scale
-    jobIterations: 200
+    jobIterations: 400
     preLoadImages: true
     preLoadPeriod: 5s
     namespacedIterations: false

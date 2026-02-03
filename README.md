@@ -1,6 +1,6 @@
 ### About
 Reproducer scripts for https://github.com/kubernetes-sigs/kueue/issues/8095 using [kube-burner-ocp](https://github.com/kube-burner/kube-burner-ocp). 
-Configures Kueue with 2 ResourceFlavors (CPU and GPU) and starts 100 jobs running on GPU and 1000 jobs running on CPU.
+Configures Kueue with 2 ResourceFlavors (CPU and GPU) and starts 400 jobs running on GPU and 2000 jobs running on CPU.
 
 ### Pre-requisites
 1. OCP cluster with one regular worker node (e.g. m6i.2xlarge) and one worker node with GPU (e.g. g4dn.xlarge).
